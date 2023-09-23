@@ -14,7 +14,7 @@ namespace Social.Services.Posts
         {
             _httpClient = httpClient;
         }
-        public async Task<List<Models.Posts>> GetpostsAsync()
+        public async Task<List<Models.Posts>> GetPostsAsync()
         {
             var response = await _httpClient.GetAsync(_baseUrl);
             var content = await response.Content.ReadAsStringAsync();
@@ -24,6 +24,29 @@ namespace Social.Services.Posts
                 return posts;
             }
             return new List<Models.Posts>();
+        }
+        public async Task<Models.Posts> GetPostAsync(int id)
+        {
+            var response = await _httpClient.GetAsync($"{_baseUrl}/{id}");
+            var content = await response.Content.ReadAsStringAsync();
+            var post = JsonConvert.DeserializeObject<Models.Posts>(content.ToString());
+            if (post != null)
+            {
+                return post;
+            }
+            return new Models.Posts();
+        }
+
+        public async Task<Models.Posts> GetPostByUserIdAsync(int userId)
+        {
+            var response = await _httpClient.GetAsync($"{_baseUrl}?userId={userId}");
+            var content = await response.Content.ReadAsStringAsync();
+            var posts = JsonConvert.DeserializeObject<List<Models.Posts>>(content.ToString()).ToList();
+            if (posts != null && posts.Any())
+            {
+                return posts.FirstOrDefault();
+            }
+            return new Models.Posts();
         }
     }
 }
