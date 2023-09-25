@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
-
+@inject IUserInterface _usersService
+@inject IPostInterface _postService
+@inject ICommentsInterface _commentsService
 <div class="page">
     <main>
         <nav class="navbar navbar-expand-lg bg-info text-white">
@@ -45,13 +47,13 @@
                     @foreach (var post in _posts)
                     {
                         <div class="card col-6">
-                            <div class="row no-gutters">
+                            <div class="row no-gutters" @onclick="showComments">
                                 <div class="col-sm-5">
                                     <img class="img-fluid"
                                         src="https://cdn.pixabay.com/photo/2017/04/01/21/06/portrait-2194457_1280.jpg"
                                         alt="User Card">
                                 </div>
-                                <div class="col-sm-7">
+                                <div class="col-sm-7" >
                                     <div class="card-body">
                                         <h5 class="card-title">@post.title</h5>
                                         <p class="card-text">@post.body</p>
@@ -60,22 +62,29 @@
                             </div>
                         </div>
                     }
+                    @*comments card*@
+                    @foreach (var comment in _comments)
+                    {
                     <div class="card col-6">
-                        <div class="row no-gutters">
-                            <div class="col-sm-5">
-                                <img class="img-fluid"
-                                    src="https://cdn.pixabay.com/photo/2017/04/01/21/06/portrait-2194457_1280.jpg"
-                                    alt="Suresh Dasari Card">
-                            </div>
-                            <div class="col-sm-7">
-                                <div class="card-body">
-                                    <h5 class="card-title">Suresh Dasari</h5>
-                                    <p class="card-text">Suresh Dasari is a founder and technical lead developer in tutlane.
-                                    </p>
+                        
+                            <div class="row no-gutters">
+                                <div class="col-sm-5">
+                                    <img class="img-fluid"
+                                         src="https://cdn.pixabay.com/photo/2017/01/06/20/19/social-1958774_1280.jpg"
+                                         alt="Suresh Dasari Card">
+                                </div>
+                                <div class="col-sm-7">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@comment.name</h5>
+                                        <p class="card-text">
+                                            @comment.body
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        
                     </div>
+}
                 </div>
             }
 
@@ -85,41 +94,36 @@
 </div>
 
 @code {
-    [Inject]
-    private Services.Users.IUserInterface _usersService { get; set; }
-    [Inject]
-    private Services.Posts.IPostInterface _postsService { get; set; }
-    [Inject]
-    private Services.Comments.ICommentsInterface _commentsService { get; set; }
 
     private List<Posts> _posts = new List<Posts>();
+    private List<Comments> _comments = new List<Comments>();
 
     private Users selectedUser;
     private List<Users> _users;
+    private Posts selectedPost;
 
     protected override async Task OnInitializedAsync()
     {
         _users = await _usersService.GetusersAsync();
     }
 
+    // show comments for the selected post
+    private async void showComments()
+    {
+        selectedPost = _posts.FirstOrDefault();
+        _comments = await _commentsService.GetcommentsAsync(selectedPost.id);
+        Console.WriteLine(_comments.Count);
+    }
     private async void HandleUserSelection(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value.ToString(), out int userId))
         {
             selectedUser = _users.FirstOrDefault(u => u.id == userId);
-            if (selectedUser != null)
-            {
-                var userPosts = await _postsService.GetPostByUserIdAsync(selectedUser.id);
-            }
-            else
-            {
-                _posts.Clear();
-            }
+            _posts = await _postService.GetPostByUserIdAsync(selectedUser.id);
         }
         else
         {
             selectedUser = null;
-            _posts.Clear();
         }
     }
 }

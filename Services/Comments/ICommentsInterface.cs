@@ -7,6 +7,6 @@ namespace Social.Services.Comments
 {
     public interface ICommentsInterface
     {
-        Task<List<Models.Comments>> GetcommentsAsync();
+        Task<List<Models.Comments>> GetcommentsAsync(int postId);
     }
 }
