@@ -44,47 +44,62 @@
                 </div>
                 @* posts card *@
                 <div class="row">
+                    <div class="card col-6">
                     @foreach (var post in _posts)
                     {
-                        <div class="card col-6">
-                            <div class="row no-gutters" @onclick="showComments">
+                       
+                            <div class="row no-gutters" @onclick="() => showComments(post)">
                                 <div class="col-sm-5">
                                     <img class="img-fluid"
                                         src="https://cdn.pixabay.com/photo/2017/04/01/21/06/portrait-2194457_1280.jpg"
                                         alt="User Card">
                                 </div>
-                                <div class="col-sm-7" >
+                                <div class="col-sm-7">
                                     <div class="card-body">
                                         <h5 class="card-title">@post.title</h5>
                                         <p class="card-text">@post.body</p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    }
-                    @*comments card*@
-                    @foreach (var comment in _comments)
-                    {
-                    <div class="card col-6">
                         
-                            <div class="row no-gutters">
-                                <div class="col-sm-5">
-                                    <img class="img-fluid"
-                                         src="https://cdn.pixabay.com/photo/2017/01/06/20/19/social-1958774_1280.jpg"
-                                         alt="Suresh Dasari Card">
-                                </div>
-                                <div class="col-sm-7">
-                                    <div class="card-body">
-                                        <h5 class="card-title">@comment.name</h5>
-                                        <p class="card-text">
-                                            @comment.body
-                                        </p>
+                    }
+                    </div>
+                    @*comments card*@
+                    <div class="card col-6">
+                    @if(selectedPost != null)
+                        {
+                            @foreach (var comment in _comments)
+                            {
+                                         <div class="row no-gutters">
+                                    <div class="col-sm-5">
+                                        <img class="img-fluid"
+                                             src="https://cdn.pixabay.com/photo/2017/01/06/20/19/social-1958774_1280.jpg"
+                                             alt="Suresh Dasari Card">
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <div class="card-body">
+                                            <h5 class="card-title">@comment.name</h5>
+                                            <p class="card-text">
+                                                @comment.body
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="alert alert-info" role="alert">
+                                Please select a post to see its comments!!
                             </div>
-                        
+                        }
                     </div>
-}
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    Please select a user from the dropdown to see their posts!!
                 </div>
             }
 
@@ -108,9 +123,9 @@
     }
 
     // show comments for the selected post
-    private async void showComments()
+    private async void showComments(Posts post)
     {
-        selectedPost = _posts.FirstOrDefault();
+        selectedPost = post;
         _comments = await _commentsService.GetcommentsAsync(selectedPost.id);
         Console.WriteLine(_comments.Count);
     }
